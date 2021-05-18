@@ -14,8 +14,7 @@ import { curl } from "./helpers/request";
 import { getOwnerRepo } from "./helpers/secrets";
 import { SiteHistory } from "./interfaces";
 import { generateSummary } from "./summary";
-import { exec, chmod } from 'shelljs';
-
+import { exec, chmod } from "shelljs";
 
 export const update = async (shouldCommit = false) => {
   if (!(await shouldContinue())) return;
@@ -83,27 +82,29 @@ export const update = async (shouldCommit = false) => {
     }
   }
 
-
-
   for await (const site of config.sites) {
-    const tags :string[] = site.tags || ['default'] ;
-    for await (const tag of tags){
-      if(tag !== 'default' && site.startScript){
-        if(exec(`${site.startScript} ${site.name} ${site.url} ${tag}`).code !=0){
+    const tags: string[] = site.tags || ["default"];
+    for await (const tag of tags) {
+      if (tag !== "default" && site.startScript) {
+        if (exec(`${site.startScript} ${site.name} ${site.url} ${tag}`).code != 0) {
           // error:: skip update for this name+tag
           continue;
-        }      
+        }
       }
       console.log("Checking", site.url);
 
       // default  ->  name
       // other    ->  name+ tag
-      const siteName :string = tag !=='default'? `${site.name} ${tag}`:site.name;
+      const siteName: string = tag !== "default" ? `${site.name} ${tag}` : site.name;
       // default, slug    ->  slug
       // other, slug      ->  slugify(slug+ tag)
       // other, undefined ->  slugify(siteName)
-      const slug :string = tag ==='default' && site.slug ? site.slug : (site.slug ? slugify(`${site.slug} ${tag}`) : slugify(siteName));
-
+      const slug: string =
+        tag === "default" && site.slug
+          ? site.slug
+          : site.slug
+          ? slugify(`${site.slug} ${tag}`)
+          : slugify(siteName);
 
       let currentStatus = "unknown";
       let startTime = new Date();
@@ -229,11 +230,10 @@ export const update = async (shouldCommit = false) => {
         }
       }
 
-      
       // tags does not exist -> false
       // tag  default        -> false
       // else                -> true
-      if(tags && tag!='default'){
+      if (tags && tag != "default") {
         exec(`${site.endScript} ${site.name} ${site.url} ${tag}`);
       }
 
@@ -242,13 +242,13 @@ export const update = async (shouldCommit = false) => {
           await writeFile(
             join(".", "history", `${slug}.yml`),
             `url: ${site.url}
-  status: ${status}
-  code: ${result.httpCode}
-  responseTime: ${responseTime}
-  lastUpdated: ${new Date().toISOString()}
-  startTime: ${startTime}
-  generator: Upptime <https://github.com/upptime/upptime>
-  `
+status: ${status}
+code: ${result.httpCode}
+responseTime: ${responseTime}
+lastUpdated: ${new Date().toISOString()}
+startTime: ${startTime}
+generator: Upptime <https://github.com/upptime/upptime>
+`
           );
           commit(
             (
@@ -316,9 +316,9 @@ export const update = async (shouldCommit = false) => {
                   )}\`](https://github.com/${owner}/${repo}/commit/${lastCommitSha}), ${siteName} (${
                     site.url
                   }) ${status === "down" ? "was **down**" : "experienced **degraded performance**"}:
-  - HTTP code: ${result.httpCode}
-  - Response time: ${responseTime} ms
-  `,
+- HTTP code: ${result.httpCode}
+- Response time: ${responseTime} ms
+`,
                   labels: ["status", slug],
                 });
                 const assignees = [...(config.assignees || []), ...(site.assignees || [])];
@@ -392,8 +392,6 @@ export const update = async (shouldCommit = false) => {
       } catch (error) {
         console.log("ERROR", error);
       }
-
-
     }
   }
 
