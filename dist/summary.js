@@ -34,38 +34,47 @@ const generateSummary = async () => {
     let numberOfDegraded = 0;
     // Loop through each site and add compute the current status
     for await (const site of config.sites) {
-        const slug = site.slug || slugify_1.default(site.name);
-        const uptimes = await calculate_uptime_1.getUptimePercentForSite(slug);
-        console.log("Uptimes", uptimes);
-        const responseTimes = await calculate_response_time_1.getResponseTimeForSite(slug);
-        console.log("Response times", responseTimes);
-        let fallbackIcon = "";
-        try {
-            fallbackIcon = `https://favicons.githubusercontent.com/${url_1.parse(site.url).hostname}`;
+        let tags = site.tags || ['default'];
+        for await (const tag of tags) {
+            // default  ->  name
+            // other    ->  name+ tag
+            const siteName = tag !== 'default' ? `${site.name} ${tag}` : site.name;
+            // default, slug    ->  slug
+            // other, slug      ->  slugify(slug+ tag)
+            // other, undefined ->  slugify(siteName)
+            const slug = tag === 'default' && site.slug ? site.slug : (site.slug ? slugify_1.default(`${site.slug} ${tag}`) : slugify_1.default(siteName));
+            const uptimes = await calculate_uptime_1.getUptimePercentForSite(slug);
+            console.log("Uptimes", uptimes);
+            const responseTimes = await calculate_response_time_1.getResponseTimeForSite(slug);
+            console.log("Response times", responseTimes);
+            let fallbackIcon = "";
+            try {
+                fallbackIcon = `https://favicons.githubusercontent.com/${url_1.parse(site.url).hostname}`;
+            }
+            catch (error) { }
+            pageStatuses.push({
+                name: siteName,
+                url: site.url,
+                icon: site.icon || fallbackIcon,
+                slug,
+                status: responseTimes.currentStatus,
+                uptime: uptimes.all,
+                uptimeDay: uptimes.day,
+                uptimeWeek: uptimes.week,
+                uptimeMonth: uptimes.month,
+                uptimeYear: uptimes.year,
+                time: Math.floor(responseTimes.all),
+                timeDay: responseTimes.day,
+                timeWeek: responseTimes.week,
+                timeMonth: responseTimes.month,
+                timeYear: responseTimes.year,
+                dailyMinutesDown: uptimes.dailyMinutesDown,
+            });
+            if (responseTimes.currentStatus === "down")
+                numberOfDown++;
+            if (responseTimes.currentStatus === "degraded")
+                numberOfDegraded++;
         }
-        catch (error) { }
-        pageStatuses.push({
-            name: site.name,
-            url: site.url,
-            icon: site.icon || fallbackIcon,
-            slug,
-            status: responseTimes.currentStatus,
-            uptime: uptimes.all,
-            uptimeDay: uptimes.day,
-            uptimeWeek: uptimes.week,
-            uptimeMonth: uptimes.month,
-            uptimeYear: uptimes.year,
-            time: Math.floor(responseTimes.all),
-            timeDay: responseTimes.day,
-            timeWeek: responseTimes.week,
-            timeMonth: responseTimes.month,
-            timeYear: responseTimes.year,
-            dailyMinutesDown: uptimes.dailyMinutesDown,
-        });
-        if (responseTimes.currentStatus === "down")
-            numberOfDown++;
-        if (responseTimes.currentStatus === "degraded")
-            numberOfDegraded++;
     }
     let website = `https://${config.owner}.github.io/${config.repo}`;
     if (config["status-website"] && config["status-website"].cname)
@@ -179,7 +188,7 @@ ${config.summaryEndHtmlComment || "<!--end: status pages-->"}${endText}`;
                 ? numberOfDegraded === 0
                     ? i18n.allSystemsOperational || "🟩 All systems operational"
                     : i18n.degradedPerformance || "🟨 Degraded performance"
-                : numberOfDown === config.sites.length
+                : numberOfDown === config.sites.reduce((acc, { tags }) => acc + (tags ? tags.length : 1), 0)
                     ? i18n.completeOutage || "🟥 Complete outage"
                     : i18n.partialOutage || "🟧 Partial outage"}**`;
         }

@@ -44,7 +44,20 @@ const updateTemplate = async () => {
         }
         catch (error) { }
     console.log("Removed template files");
-    const slugs = config.sites.map((site) => site.slug || slugify_1.default(site.name));
+    const slugs = [];
+    for (const site of config.sites) {
+        const tags = site.tags || ['default'];
+        for (const tag of tags) {
+            // default  ->  name
+            // other    ->  name+ tag
+            const siteName = tag !== 'default' ? `${site.name} ${tag}` : site.name;
+            // default, slug    ->  slug
+            // other, slug      ->  slugify(slug+ tag)
+            // other, undefined ->  slugify(siteName)
+            const slug = tag === 'default' && site.slug ? site.slug : (site.slug ? slugify_1.default(`${site.slug} ${tag}`) : slugify_1.default(siteName));
+            slugs.push(slug);
+        }
+    }
     const filesToKeep = ["LICENSE", "summary.json"];
     // Remove old data from ./api
     try {
