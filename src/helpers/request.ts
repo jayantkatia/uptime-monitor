@@ -20,7 +20,7 @@ export const curl = (
       curl.setOpt("SSL_VERIFYHOST", false);
     curl.setOpt("FOLLOWLOCATION", 1);
     curl.setOpt("MAXREDIRS", Number.isInteger(site.maxRedirects) ? Number(site.maxRedirects) : 3);
-    curl.setOpt("USERAGENT", "Koj Bot");
+    curl.setOpt("USERAGENT", "Koj");
     curl.setOpt("CONNECTTIMEOUT", 10);
     curl.setOpt("TIMEOUT", 30);
     curl.setOpt("HEADER", 1);
