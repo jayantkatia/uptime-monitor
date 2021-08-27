@@ -140,7 +140,11 @@ export const update = async (shouldCommit = false) => {
               port: Number(replaceEnvironmentVariables(site.port ? String(site.port) : "")),
             });
             console.log(Object.prototype.toString.call(tcpResult.results[0].error))
+           
             console.log(tcpResult.results[0].error instanceof Error)
+            console.log(typeof tcpResult.results[0].error?.constructor.name)
+            console.log(tcpResult.results[0].error?.constructor.name)
+
             console.log(tcpResult.results.every(result => Object.prototype.toString.call(result.error) === "[object Error]"));
             if(tcpResult.results.every(result => Object.prototype.toString.call(result.error) === "[object Error]"))
               throw Error('all attempts failed');
