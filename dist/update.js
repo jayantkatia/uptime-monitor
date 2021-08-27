@@ -126,13 +126,13 @@ const update = async (shouldCommit = false) => {
                             attempts: 5,
                             port: Number(environment_1.replaceEnvironmentVariables(site.port ? String(site.port) : "")),
                         });
-                        console.log(Object.prototype.toString.call(tcpResult.results[0].error));
-                        console.log(tcpResult.results[0].error);
-                        console.log(tcpResult.results[0].error instanceof Error);
-                        console.log(typeof tcpResult.results[0].error.constructor.name);
-                        console.log(tcpResult.results[0].error.constructor.name);
-                        console.log(tcpResult.results.every(result => Object.prototype.toString.call(result.error) === "[object Error]"));
-                        if (tcpResult.results.every(result => Object.prototype.toString.call(result.error) === "[object Error]"))
+                        console.log(Object.prototype.toString.call(tcpResult.results[0].err));
+                        console.log(tcpResult.results[0].err);
+                        console.log(tcpResult.results[0].err instanceof Error);
+                        console.log(typeof tcpResult.results[0].err.constructor.name);
+                        console.log(tcpResult.results[0].err.constructor.name);
+                        console.log(tcpResult.results.every(result => Object.prototype.toString.call(result.err) === "[object Error]"));
+                        if (tcpResult.results.every(result => Object.prototype.toString.call(result.err) === "[object Error]"))
                             throw Error('all attempts failed');
                         console.log("Got result", tcpResult);
                         let responseTime = (tcpResult.avg || 0).toFixed(0);
