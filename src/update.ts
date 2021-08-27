@@ -139,6 +139,8 @@ export const update = async (shouldCommit = false) => {
               attempts: 5,
               port: Number(replaceEnvironmentVariables(site.port ? String(site.port) : "")),
             });
+            if(tcpResult.results.every(result => Object.prototype.toString.call(result.error) === "[object Error]"))
+              throw(Error('all attempts failed'))
             console.log("Got result", tcpResult);
             let responseTime = (tcpResult.avg || 0).toFixed(0);
             if (parseInt(responseTime) > (site.maxResponseTime || 60000)) status = "degraded";
