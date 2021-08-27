@@ -126,12 +126,6 @@ const update = async (shouldCommit = false) => {
                             attempts: 5,
                             port: Number(environment_1.replaceEnvironmentVariables(site.port ? String(site.port) : "")),
                         });
-                        console.log(Object.prototype.toString.call(tcpResult.results[0].err));
-                        console.log(tcpResult.results[0].err);
-                        console.log(tcpResult.results[0].err instanceof Error);
-                        console.log(typeof tcpResult.results[0].err.constructor.name);
-                        console.log(tcpResult.results[0].err.constructor.name);
-                        console.log(tcpResult.results.every(result => Object.prototype.toString.call(result.err) === "[object Error]"));
                         if (tcpResult.results.every(result => Object.prototype.toString.call(result.err) === "[object Error]"))
                             throw Error('all attempts failed');
                         console.log("Got result", tcpResult);
@@ -145,7 +139,7 @@ const update = async (shouldCommit = false) => {
                         };
                     }
                     catch (error) {
-                        console.log("Got pinging error", error);
+                        console.log("Got pinging error", error.message);
                         return { result: { httpCode: 0 }, responseTime: (0).toFixed(0), status: "down" };
                     }
                 }
